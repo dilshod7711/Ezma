@@ -309,10 +309,10 @@ const Libraries = () => {
                               {item.address}
                             </Text>
                             <Button
-                              component="a"
-                              href={`https://www.google.com/maps/search/?api=1&query={encodeURIComponent(
-                                item.address
-                              )}`}
+                              // component="a"
+                              // href={`https://www.google.com/maps/search/?api=1&query={encodeURIComponent(
+                              //   item.address
+                              // )}`}
                               target="_blank"
                               variant="gradient"
                               gradient={{ from: "red", to: "orange", deg: 135 }}
