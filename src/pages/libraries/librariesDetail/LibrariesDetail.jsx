@@ -80,7 +80,6 @@ const LibrariesDetail = () => {
                 >
                   <Image
                     src={book.image || "/placeholder-book-open.jpg"}
-                    alt="Book Cover Placeholder"
                     height={200}
                     fit="cover"
                     style={{ opacity: 0.8 }}
