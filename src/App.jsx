@@ -5,6 +5,10 @@ import Book from "./pages/books/Book";
 import Libraries from "./pages/libraries/Libraries";
 import NotFound from "./pages/notFound/NotFound";
 import BookDetail from "./pages/bookDetail/BookDetail";
+import Login from "./pages/auth/login/Login";
+import Profile from "./pages/profile/Profile";
+import PrivateRequest from "./components/privateRequest/PrivateRequest";
+import LibrariesDetail from "./pages/libraries/librariesDetail/LibrariesDetail";
 
 const App = () => {
   return (
@@ -13,10 +17,15 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/bookDetail/:id" element={<BookDetail />} />
+          <Route path="/libDetail/:id" element={<LibrariesDetail />} />
           <Route path="/books" element={<Book />} />
           <Route path="/libraries" element={<Libraries />} />
+          <Route element={<PrivateRequest />}>
+            <Route path="/profile" element={<Profile />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="/login" element={<Login />} />
       </Routes>
     </>
   );

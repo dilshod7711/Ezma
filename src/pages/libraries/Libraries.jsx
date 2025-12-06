@@ -23,14 +23,16 @@ import {
   Search,
   Filter,
   Users,
-  Grid, 
-  List, 
+  Grid,
+  List,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const BOOKS_SHELF_IMAGE =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAendo1O6F0NV0y0VhXuwZFyzgc_6wOAvLMw&s";
 
 const Libraries = () => {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const { data: libraries, isLoading } = useQuery({
     queryKey: ["libraries"],
@@ -47,6 +49,10 @@ const Libraries = () => {
     telegram: item.telegram || "@telegram_user",
     image: item.image || BOOKS_SHELF_IMAGE,
   });
+
+  function havigateLibrariesNavigate(id) {
+    navigate(`/libDetail/${id}`);
+  }
 
   const filteredLibraries = libraries
     ?.map(mapLibraryData)
@@ -188,18 +194,18 @@ const Libraries = () => {
               />
               <Group gap="xs">
                 <Button
-                  variant="filled" 
+                  variant="filled"
                   color="indigo"
                   size="md"
-                  className="w-12 pointer-events-none" 
+                  className="w-12 pointer-events-none"
                 >
                   <List className="w-5 h-5" />
                 </Button>
                 <Button
-                  variant="default" 
+                  variant="default"
                   color="indigo"
                   size="md"
-                  className="w-12 pointer-events-none" 
+                  className="w-12 pointer-events-none"
                 >
                   <Grid className="w-5 h-5" />
                 </Button>
@@ -228,6 +234,7 @@ const Libraries = () => {
                     >
                       <div className="flex-shrink-0 relative w-full md:w-[250px] h-[200px]">
                         <img
+                          onClick={() => havigateLibrariesNavigate(item.id)}
                           src={item.image}
                           alt={item.name}
                           className="w-full h-full object-cover rounded-xl shadow-lg"
@@ -309,10 +316,10 @@ const Libraries = () => {
                               {item.address}
                             </Text>
                             <Button
-                              // component="a"
-                              // href={`https://www.google.com/maps/search/?api=1&query={encodeURIComponent(
-                              //   item.address
-                              // )}`}
+                              component="a"
+                              href={`https://www.google.com/maps/search/?api=1&query={encodeURIComponent(
+                                item.address
+                              )}`}
                               target="_blank"
                               variant="gradient"
                               gradient={{ from: "red", to: "orange", deg: 135 }}

@@ -1,17 +1,26 @@
 import { Button, Container, Flex } from "@mantine/core";
 import { NavLink, useNavigate } from "react-router-dom";
-import LanguageSelect from "../languageSelect/LanguageSelect";
+import authStore from "../../store/authStore";
+import { CgProfile } from "react-icons/cg";
 
 export const HEADER_HEIGHT = 80;
 
 const Header = () => {
+  const { isAuth } = authStore();
+
   const navigate = useNavigate();
   function handleNavigate() {
     navigate("/");
   }
+  function navigateProfile() {
+    navigate("/profile");
+  }
   const logoUrl =
     "https://ezma-client.vercel.app/assets/ezma-light-D6Z9QF3F.svg";
 
+  function loginPage() {
+    navigate("/login");
+  }
   return (
     <header
       className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 shadow-md"
@@ -82,14 +91,25 @@ const Header = () => {
             className="animate-slideInRight"
             style={{ animationDelay: "0.2s" }}
           >
-            <LanguageSelect />
-            <Button
-              variant="filled"
-              color="indigo"
-              className="bg-[#00aeff] hover:bg-[#0095d6] text-white font-semibold"
-            >
-              Kutubxonachi bo'lish
-            </Button>
+            {!isAuth && (
+              <Button
+                onClick={loginPage}
+                variant="filled"
+                color="indigo"
+                className="bg-[#00aeff] hover:bg-[#0095d6] text-white font-semibold"
+              >
+                Kutubxonachi bo'lish
+              </Button>
+            )}
+            {isAuth && (
+              <div onClick={navigateProfile}>
+                <img
+                  className="w-10 h-10 cursor-pointer"
+                  src="https://ezma-client.vercel.app/assets/user-D__q57DX.png"
+                  alt=""
+                />
+              </div>
+            )}
           </Flex>
         </Flex>
       </Container>
