@@ -218,7 +218,7 @@ const Book = () => {
         handleCloseMulti();
         queryClient.invalidateQueries(["books"]);
       },
-      onError: (addError) => {
+      onError: () => {
         notifications.show({
           title: "Kitoblarni qo'shishda xatolik",
         });
