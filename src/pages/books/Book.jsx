@@ -14,6 +14,7 @@ import {
   FocusTrap,
   FileInput,
   Group,
+  ScrollArea,
 } from "@mantine/core";
 import { rem } from "@mantine/core";
 import {
@@ -23,7 +24,6 @@ import {
   IconUpload,
   IconFileSpreadsheet,
 } from "@tabler/icons-react";
-import { Dropzone } from "@mantine/dropzone";
 import { useDisclosure } from "@mantine/hooks";
 import { AiOutlineBook } from "react-icons/ai";
 import { FaBookMedical } from "react-icons/fa";
@@ -46,6 +46,12 @@ const Book = () => {
     useDisclosure(false);
   const [openedFileModal, { open: openFile, close: closeFile }] =
     useDisclosure(false);
+
+  const [openedMultiModal, { open: openMulti, close: closeMulti }] =
+    useDisclosure(false);
+  const [multiStep, setMultiStep] = useState(1);
+  const [multiBooksData, setMultiBooksData] = useState([]);
+
   const [file, setFile] = useState(null);
 
   const kitobRef = useRef();
@@ -53,7 +59,7 @@ const Book = () => {
   const nashriyotRef = useRef();
   const soniRef = useRef();
 
-  // --- QUERY VA MUTATIONLAR ---
+  const multiRefs = useRef([]);
 
   const {
     data: books,
@@ -68,7 +74,6 @@ const Book = () => {
     mutationFn: (body) => API.post("/books/books/", body),
   });
 
-  // 1-bosqich: Faylni yuklash va kitoblar ro'yxatini olish
   const { mutate: uploadExcelFile, isPending: isUploading } = useMutation({
     mutationFn: (formData) => API.post("/books/upload-excel/", formData),
   });
@@ -155,6 +160,71 @@ const Book = () => {
     });
   };
 
+  function handleCloseMulti() {
+    setMultiStep(1);
+    setMultiBooksData([]);
+    multiRefs.current = [];
+    closeMulti();
+  }
+
+  function handleCountSubmit(e) {
+    e.preventDefault();
+
+    const count = parseInt(multiRefs.current[0].value);
+
+    if (count > 0) {
+      const initialData = Array.from({ length: count }, () => ({
+        name: "",
+        author: "",
+        publisher: "",
+        quantity_in_library: 1,
+      }));
+      setMultiBooksData(initialData);
+
+      setMultiStep(2); 
+    } else {
+      notifications.show({
+        message: "Kitoblar soni 0 dan katta bo'lishi kerak.",
+        color: "yellow",
+      });
+    }
+  }
+
+  function handleMultiInputChange(index, field, value) {
+    setMultiBooksData((prevData) => {
+      const newData = [...prevData];
+      let newValue = value;
+
+      if (field === "quantity_in_library") {
+        const parsedValue = parseInt(value, 10);
+        newValue = isNaN(parsedValue) || parsedValue < 1 ? 1 : parsedValue;
+      }
+
+      newData[index] = { ...newData[index], [field]: newValue };
+      return newData;
+    });
+  }
+
+  function handleMultiBooksSubmit(e) {
+    e.preventDefault();
+
+    addBooks(multiBooksData, {
+      onSuccess: () => {
+        notifications.show({
+          title: "Muvaffaqiyat!",
+          message: `Kitob muvaffaqiyatli qo'shildi.`,
+          color: "green",
+        });
+        handleCloseMulti();
+        queryClient.invalidateQueries(["books"]);
+      },
+      onError: (addError) => {
+        notifications.show({
+          title: "Kitoblarni qo'shishda xatolik",
+        });
+      },
+    });
+  }
 
   if (isLoading) {
     return (
@@ -178,7 +248,6 @@ const Book = () => {
       </Container>
     );
   }
-
 
   return (
     <>
@@ -243,12 +312,14 @@ const Book = () => {
               ref={kitobRef}
               label="Kitob nomi"
               placeholder="Kitob nomi"
+              required
             />
             <TextInput
               ref={muallifRef}
               label="Muallif"
               placeholder="Muallif"
               mt="md"
+              required
             />
             <TextInput
               ref={nashriyotRef}
@@ -262,6 +333,8 @@ const Book = () => {
               label="Kitoblar soni"
               placeholder="Kitoblar soni"
               mt="md"
+              min={1}
+              required
             />
 
             <Flex justify="flex-end" gap="sm" mt="lg">
@@ -271,6 +344,111 @@ const Book = () => {
               <Button type="submit">Qo‘shish</Button>
             </Flex>
           </form>
+        </Modal>
+
+        <Modal
+          opened={openedMultiModal}
+          onClose={handleCloseMulti}
+          title={
+            <Text size="lg" fw={600}>
+              📚 Bir nechta kitob qo‘shish ({multiStep} / 2)
+            </Text>
+          }
+          centered
+          size="xl"
+          scrollAreaComponent={ScrollArea.Autosize}
+        >
+          {multiStep === 1 && (
+            <form onSubmit={handleCountSubmit}>
+              <TextInput
+                ref={(el) => (multiRefs.current[0] = el)}
+                label="Nechta kitob qo‘shasiz?"
+                placeholder="Kitoblar soni"
+                type="number"
+                min={1}
+                required
+              />
+              <Flex justify="flex-end" gap="sm" mt="lg">
+                <Button variant="outline" onClick={handleCloseMulti}>
+                  Bekor qilish
+                </Button>
+                <Button type="submit">Keyingi</Button>
+              </Flex>
+            </form>
+          )}
+
+          {multiStep === 2 && (
+            <form onSubmit={handleMultiBooksSubmit}>
+              <Text size="sm" color="dimmed" mb="md">
+                Jami **{multiBookCount}** ta kitob uchun ma'lumot kiriting.
+              </Text>
+
+              {multiBooksData.map((book, index) => (
+                <Paper key={index} shadow="xs" p="md" withBorder mb="lg">
+                  <Title order={4} mb="sm">
+                    Kitob {index + 1} / {multiBookCount}
+                  </Title>
+                  <TextInput
+                    label="Kitob nomi"
+                    placeholder="Kitob nomi"
+                    required
+                    value={book.name}
+                    onChange={(e) =>
+                      handleMultiInputChange(index, "name", e.target.value)
+                    }
+                  />
+                  <TextInput
+                    label="Muallif"
+                    placeholder="Muallif"
+                    mt="md"
+                    required
+                    value={book.author}
+                    onChange={(e) =>
+                      handleMultiInputChange(index, "author", e.target.value)
+                    }
+                  />
+                  <TextInput
+                    label="Nashriyot"
+                    placeholder="Nashriyot"
+                    mt="md"
+                    value={book.publisher}
+                    onChange={(e) =>
+                      handleMultiInputChange(index, "publisher", e.target.value)
+                    }
+                  />
+                  <TextInput
+                    label="Kitoblar soni"
+                    placeholder="Kitoblar soni"
+                    type="number"
+                    min={1}
+                    required
+                    mt="md"
+                    value={book.quantity_in_library}
+                    onChange={(e) =>
+                      handleMultiInputChange(
+                        index,
+                        "quantity_in_library",
+                        e.target.value
+                      )
+                    }
+                  />
+                </Paper>
+              ))}
+
+              <Flex justify="space-between" gap="sm" mt="lg">
+                <Button variant="outline" onClick={() => setMultiStep(1)}>
+                  Orqaga
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isAddingBooks}
+                  disabled={isAddingBooks}
+                >
+                  Qo‘shish
+                </Button>
+              </Flex>
+            </form>
+          )}
         </Modal>
 
         <Modal
@@ -347,7 +525,8 @@ const Book = () => {
                 </Flex>
               </Menu.Item>
 
-              <Menu.Item>
+              <Menu.Item onClick={openMulti}>
+                {" "}
                 <Flex align="center" gap="xs">
                   <FaBookMedical />
                   Bir nechta kitob qo‘shish
