@@ -130,13 +130,13 @@ const Book = () => {
             placeholder="Kitob nomi, muallifi yoki janrini qidirish..."
             icon={<IconSearch size={20} />}
             size="xl"
-            radius="md"
+            radius="sm"
             variant="filled"
             styles={(theme) => ({
               input: {
                 transition: "box-shadow 0.2s ease, border-color 0.2s ease",
                 "&:focus-within": {
-                  borderColor: theme.colors.blue[6],
+                  borderColor: theme.colors.blue[4],
                   boxShadow: `0 0 0 2px `,
                 },
               },
@@ -209,7 +209,7 @@ const Book = () => {
                 placeholder="Kitoblar soni"
                 mt="md"
               />
-              <div className="mt-3 ml-[185px] flex gap-2 w-full">
+              <div className="mt-3 ml-auto flex gap-2 w-full justify-end items-end">
                 <Button variant="outline" onClick={close}>
                   Bekor qilish
                 </Button>

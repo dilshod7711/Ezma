@@ -1,9 +1,6 @@
-import {
-  Container,
-  Flex,
-} from "@mantine/core";
+import { Container, Flex } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { Users, BookOpenText} from "lucide-react";
+import { Users, BookOpenText } from "lucide-react";
 import { API } from "../../api/api";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -30,10 +27,6 @@ const Home = () => {
   });
 
   const availableBooks = books || [];
-
-  function handleDetail(id) {
-    navigate(`/bookDetail/${id}`);
-  }
 
   return (
     <>
@@ -110,7 +103,7 @@ const Home = () => {
           >
             {availableBooks?.slice(0, 10).map((book, index) => (
               <SwiperSlide key={book.id}>
-                <div onClick={() => handleDetail(book.id)}>
+                <div>
                   <BookCard book={book} />
                 </div>
               </SwiperSlide>

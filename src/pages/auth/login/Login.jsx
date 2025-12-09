@@ -1,5 +1,5 @@
 import { Button, Container, Input, PasswordInput } from "@mantine/core";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
 import { BsArrowBarLeft } from "react-icons/bs";
 import { useMutation } from "@tanstack/react-query";
 import { API } from "../../../api/api";
@@ -7,8 +7,26 @@ import authStore from "../../../store/authStore";
 import { useRef } from "react";
 import { notifications } from "@mantine/notifications";
 
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const phoneClean = (v) => v.replace(/\s+/g, "").replace(/-/g, "");
+
+const schema = yup.object().shape({
+  phone: yup
+    .string()
+    .required("Telefon raqamni kiriting")
+    .transform((val) => (val ? phoneClean(val) : ""))
+    .matches(/^\+998\d{9}$/, "Telefon raqam formati: +998901234567"),
+  password: yup
+    .string()
+    .required("Parolni kiriting")
+    .min(6, "Parol kamida 6 belgidan iborat bo'lishi kerak"),
+});
+
 const Login = () => {
-  const { login } = authStore();
+  const { login, isAuth } = authStore();
   const numberRef = useRef();
   const passRef = useRef();
   const navigate = useNavigate();
@@ -18,18 +36,27 @@ const Login = () => {
     mutationFn: (body) => API.post("/auth/login/", body),
   });
 
-  function handleSubmitLogin(e) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: { phone: "", password: "" },
+  });
 
+  const onSubmit = (data) => {
     const newUser = {
-      password: passRef.current.value,
-      phone: numberRef.current.value,
+      phone: data.phone,
+      password: data.password,
     };
+
     loginMutate(newUser, {
       onSuccess: (res) => {
         login(res.data.user, res.data.access);
         notifications.show({
-          message: "Muvoffaqiyatli ",
+          message: "Muvoffaqiyatli",
         });
         navigate("/profile");
       },
@@ -40,7 +67,9 @@ const Login = () => {
         });
       },
     });
-  }
+  };
+
+  if (isAuth) return <Navigate to="/" />;
 
   return (
     <div>
@@ -57,7 +86,6 @@ const Login = () => {
             to="/"
             className="absolute top-[50px] left-[40px] flex gap-2  items-center justify-center border-1 border-gray-200 px-2 py-1 cursor-pointer rounded-[4px]"
           >
-            {" "}
             <BsArrowBarLeft />
             Orqaga
           </Link>
@@ -65,7 +93,7 @@ const Login = () => {
             <h1 className="text-5xl">Tizimga kirish</h1>
             <p>Platformadan to'liq foydalanish uchun tizimga kiring</p>
             <form
-              onSubmit={handleSubmitLogin}
+              onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col gap-4 w-[600px] max-w-full"
             >
               <div className="flex flex-col gap-2 w-full">
@@ -74,18 +102,56 @@ const Login = () => {
                 </label>
 
                 <Input
-                  ref={numberRef}
+                  {...register("phone")}
+                  ref={(e) => {
+                    register("phone").ref(e);
+                    numberRef.current = e;
+                  }}
                   type="text"
                   placeholder="+998 __ ___ __ __"
+                  onBlur={(e) => {
+                    // avtomatik tozalash va formatlash: +998901234567 -> +998 90 123 45 67 (misol)
+                    const raw = phoneClean(e.target.value);
+                    // setValue bilan formni yangilash (barcha validatsiyalar ishlaydi)
+                    setValue("phone", raw, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                    // agar ref kerak bo'lsa, input.value ni ham yangilab qo'yish
+                    if (numberRef.current) numberRef.current.value = raw;
+                  }}
+                  error={errors.phone?.message}
                 />
+                {errors.phone && (
+                  <span className="text-red-600 text-sm">
+                    {errors.phone.message}
+                  </span>
+                )}
               </div>
 
-              <PasswordInput
-                ref={passRef}
-                description="Parol"
-                placeholder="Iltimos parolni kiriting"
-              />
-              <Button type="submit">Tizimga kiring</Button>
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-[12px] font-medium text-gray-500">
+                  Parol
+                </label>
+                <PasswordInput
+                  {...register("password")}
+                  ref={(e) => {
+                    register("password").ref(e);
+                    passRef.current = e;
+                  }}
+                  placeholder="Iltimos parolni kiriting"
+                />
+                {errors.password && (
+                  <span className="text-red-600 text-sm">
+                    {errors.password.message}
+                  </span>
+                )}
+              </div>
+
+              <Button type="submit" loading={isSubmitting}>
+                Tizimga kiring
+              </Button>
+
               <div className="flex items-center justify-center gap-2">
                 <p>Hisobingiz yo'qmi?</p>
                 <NavLink to="register" className="text-blue-700">

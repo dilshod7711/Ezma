@@ -11,6 +11,8 @@ import {
   Divider,
   TextInput,
   Switch,
+  Grid,
+  Anchor,
 } from "@mantine/core";
 import {
   IconPhone,
@@ -32,6 +34,8 @@ import { Modal, Button } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../../api/api";
 import authStore from "../../store/authStore";
+import BookCard from "../../components/bookCard/BookCard";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { logout } = authStore();
@@ -44,6 +48,11 @@ const Profile = () => {
     queryKey: ["profile"],
     queryFn: () => API.get("/auth/profile/").then((res) => res.data),
   });
+  const { data: myBooks } = useQuery({
+    queryKey: ["myBooks"],
+    queryFn: () => API.get("/libraries/library/books").then((res) => res.data),
+  });
+  console.log(profiles);
 
   if (isLoading)
     return (
@@ -190,15 +199,52 @@ const Profile = () => {
           <Divider my="xs" />{" "}
           <div className="p-4">
             <Tabs.Panel value="kitoblarim">
-              <Text size="sm" c="dimmed">
-                Kitob topilmadi
-              </Text>
+              <Grid columns={4}>
+                {myBooks?.map((book) => (
+                  <Grid.Col key={book.id} span={1}>
+                    <BookCard book={book} />
+                  </Grid.Col>
+                ))}
+              </Grid>
             </Tabs.Panel>
 
             <Tabs.Panel value="tarmoqlarim">
-              <Text size="sm" c="dimmed">
-                Tarmoqlar ro'yxati kiritilmagan.
-              </Text>
+              <Stack gap="sm">
+                <div className="grid grid-cols-8">
+                  <Group>
+                    <IconBrandInstagram size={20} color="#E4405F" />
+                    <Anchor
+                      href={profiles.social_media?.instagram}
+                      target="_blank"
+                      underline="hover"
+                    >
+                      Instagram
+                    </Anchor>
+                  </Group>
+
+                  <Group>
+                    <IconBrandFacebook size={20} color="#1877F2" />
+                    <Anchor
+                      href={profiles.social_media?.facebook}
+                      target="_blank"
+                      underline="hover"
+                    >
+                      Facebook
+                    </Anchor>
+                  </Group>
+
+                  <Group>
+                    <IconBrandTelegram size={20} color="#0088CC" />
+                    <Anchor
+                      href={profiles.social_media?.telegram}
+                      target="_blank"
+                      underline="hover"
+                    >
+                      Telegram
+                    </Anchor>
+                  </Group>
+                </div>
+              </Stack>
             </Tabs.Panel>
 
             <Tabs.Panel value="xarita">

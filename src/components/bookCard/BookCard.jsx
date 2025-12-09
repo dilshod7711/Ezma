@@ -22,6 +22,9 @@ import authStore from "../../store/authStore";
 
 const BookCard = ({ book }) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [popoverOpened, { open: openPopover, close: closePopover }] =
+    useDisclosure(false);
+
   const [editID, setEditId] = useState(null);
   const { isAuth } = authStore();
 
@@ -36,17 +39,22 @@ const BookCard = ({ book }) => {
 
   const navigate = useNavigate();
   const BASE_IMAGE_URL =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN5HZXRPc4IqBHLILRMFJ1-zqp065uOp-fEQ&s";
+    "https://avatanplus.com/files/resources/original/5749cec7733ab154f84fbb30.png";
 
   const { mutate: deleteBook } = useMutation({
     mutationFn: (id) => API.delete(`/books/book/${id}/`),
   });
 
   function handleDeleteBook(id) {
+    closePopover();
+    const isConfirm = confirm("Kitobni o'chirmoqchimisiz?");
+
+    if (!isConfirm) return;
+
     deleteBook(id, {
       onSuccess: () => {
         notifications.show({
-          message: "Kitob o'chirildi ",
+          message: "Kitob o'chirildi",
         });
         queryClient.invalidateQueries({
           queryKey: ["books"],
@@ -54,8 +62,8 @@ const BookCard = ({ book }) => {
       },
       onError: () => {
         notifications.show({
-          message: "o'chirishda xatolik ",
-          color: "red ",
+          message: "O'chirishda xatolik",
+          color: "red",
         });
       },
     });
@@ -66,7 +74,9 @@ const BookCard = ({ book }) => {
   });
 
   function handleUpdateBook(book) {
+    closePopover();
     open();
+
     setEditId(book.id);
     setBookName(book?.name);
     setBookAuthor(book?.author);
@@ -109,7 +119,7 @@ const BookCard = ({ book }) => {
   }
 
   return (
-    <div className="p-3 rounded-xl transition-all border-1 border-gray-200 duration-300border border-gray-200  dark:hover:shadow-sm  cursor-pointer transform ">
+    <div className="p-3 rounded-sm transition-all border-1 border-gray-200 duration-300border border-gray-200  dark:hover:shadow-sm  cursor-pointer transform ">
       <div className="relative overflow-hidden rounded-lg aspect-[4/5] mb-3">
         <img
           onClick={() => handleDetail(book.id)}
@@ -119,7 +129,7 @@ const BookCard = ({ book }) => {
             e.target.src = "https://via.placeholder.com/150x225?text=Rasm+yo'q";
           }}
           alt={book?.name}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.06"
+          className="w-full h-full  transition-transform duration-500 hover:scale-[1.06"
         />
         <div className="flex justify-between  gap">
           <Badge
@@ -144,19 +154,22 @@ const BookCard = ({ book }) => {
               withArrow
               shadow="md"
               color="blue"
+              opened={popoverOpened}
+              onClose={closePopover}
             >
               <Popover.Target>
-                <RxDotsHorizontal />
+                <RxDotsHorizontal onClick={openPopover} />
               </Popover.Target>
               <Popover.Dropdown>
                 <div className="flex flex-col gap-4">
-                  <Button color="red">
+                  <Button
+                    color="red"
+                    onClick={() => handleDeleteBook(book?.id)}
+                  >
                     {" "}
                     <div className="flex gap-1">
                       <AiFillDelete />
-                      <span onClick={() => handleDeleteBook(book?.id)}>
-                        <span> Delete</span>
-                      </span>
+                      <span> Delete</span>
                     </div>
                   </Button>
                   <Button
@@ -207,7 +220,7 @@ const BookCard = ({ book }) => {
           </Badge>
         </Flex>
       </div>
-      <Modal opened={opened} onClose={close} title="Bitta kitob qo'shish">
+      <Modal opened={opened} onClose={close} title="Kitobni tahrirlash">
         <form onSubmit={handleSubmitUpdateBook}>
           <FocusTrap.InitialFocus />
           <TextInput
@@ -239,7 +252,7 @@ const BookCard = ({ book }) => {
             value={bookQuantity}
             onChange={(e) => setBookQuantity(e.target.value)}
           />
-          <div className="mt-3 ml-[165px] flex gap-2 w-full">
+          <div className="mt-3 ml-auto flex gap-2 w-full justify-end items-end">
             <Button variant="outline" onClick={close}>
               Bekor qilish
             </Button>

@@ -2,178 +2,295 @@ import { useQuery } from "@tanstack/react-query";
 import { API } from "../../../api/api";
 import {
   Container,
+  Skeleton,
+  Badge,
+  Group,
+  Text,
+  Title,
   Grid,
   Card,
-  Title,
-  Text,
-  Badge,
-  Button,
-  Image,
-  List,
+  Stack,
+  Divider,
+  Chip,
   Box,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import {
-  IconBook,
-  IconMapPin,
-  IconPhone,
-  IconCheck,
-  IconX,
-} from "@tabler/icons-react";
+  MapPin,
+  Phone,
+  BookOpen,
+  Building2,
+  UserCheck,
+  Package,
+} from "lucide-react";
+
+const InfoItem = ({ Icon, title, value, color }) => (
+  <Group wrap="nowrap" gap="sm">
+    <Icon size={20} className={`text-${color}-600 shrink-0`} />
+    <Stack gap={2}>
+      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+        {title}
+      </Text>
+      <Text fw={500} lineClamp={1}>
+        {value}
+      </Text>
+    </Stack>
+  </Group>
+);
 
 const LibrariesDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["libraries", id],
+  const { data: libraryData, isLoading } = useQuery({
+    queryKey: ["library", id],
     queryFn: () => API.get(`/libraries/library/${id}`).then((res) => res.data),
   });
 
+  const library = libraryData?.results?.library;
+  const books = libraryData?.results?.books || [];
+
   if (isLoading) {
     return (
-      <Container mt="lg">
-        <Text>Yuklanmoqda...</Text>
+      <Container size="xl" mt={100}>
+        <Skeleton height={300} radius="lg" />
+        <Grid gutter="xl" mt="xl">
+          <Grid.Col span={4}>
+            <Skeleton height={150} />
+          </Grid.Col>
+          <Grid.Col span={8}>
+            <Skeleton height={150} />
+          </Grid.Col>
+        </Grid>
+        <Skeleton height={40} mt="xl" width="50%" />
+        <Grid gutter="md" mt="md">
+          {[...Array(4)].map((_, i) => (
+            <Grid.Col key={i} span={{ base: 12, md: 6, lg: 3 }}>
+              <Skeleton height={250} />
+            </Grid.Col>
+          ))}
+        </Grid>
       </Container>
     );
   }
 
-  const results = data?.results;
-
-  if (isError || !results || !results.library || !results.phone) {
-    return (
-      <div className="mt-[100px]">
-        <Container mt="lg">
-          <Text color="red">
-            Kutubxona ma'lumotlarini yuklashda xato yuz berdi.
-          </Text>
-        </Container>
-      </div>
-    );
-  }
-
-  const library = results.library;
-  const books = results.books || [];
-  const phone = results.phone;
-  const totalBooks = results.total_books;
-
-  const renderBookList = () => {
-    if (!books || books.length === 0) {
-      return (
-        <Text>Bu kutubxonada hozircha kitoblar roʻyxati mavjud emas.</Text>
-      );
-    }
-
-    return (
-      <Grid gutter="xl">
-        {books.map((book) => (
-          <Grid.Col span={{ base: 12, sm: 6, md: 3 }} key={book.id}>
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Box
-                  h={200}
-                  style={{
-                    backgroundColor: "#f0f0f0",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    src={book.image || "/placeholder-book-open.jpg"}
-                    height={200}
-                    fit="cover"
-                    style={{ opacity: 0.8 }}
-                  />
-                </Box>
-              </Card.Section>
-
-              <Text weight={500} size="lg" mt="md" lineClamp={1}>
-                {book.name}
-              </Text>
-              <Text size="sm" color="dimmed" lineClamp={1}>
-                Muallif: {book.author}
-              </Text>
-            </Card>
-          </Grid.Col>
-        ))}
-      </Grid>
-    );
-  };
+  const address = library?.address || "Manzil mavjud emas";
+  const phone = libraryData?.results?.phone || "Telefon raqam yo'q";
+  const totalBooks = libraryData?.results?.total_books || 0;
+  const createdAt = library?.created_at?.split("T")[0] || "Noma'lum";
+  const isActive = library?.is_active;
 
   return (
-    <div className="mt-[100px]">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
       <Container size="xl">
-        <Grid gutter="xl">
-          <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section>
-                <Image
-                  src={
-                    library.image ||
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN5HZXRPc4IqBHLILRMFJ1-zqp065uOp-fEQ&s"
-                  }
-                  height={220}
-                  alt="Library facade"
-                  fit="cover"
+        <Card
+          withBorder
+          radius="sm"
+          p={0}
+          className="overflow-hidden bg-white "
+        >
+          <Grid gutter={0}>
+            <Grid.Col span={{ base: 12, md: 5 }}>
+              <Box className="h-[300px] md:h-full">
+                <img
+                  src="https://ezma-client.vercel.app/assets/library-CY0z204p.webp"
+                  alt={library?.name}
+                  className="w-full h-[430px]  rounded-xl ml-4 mt-6"
                 />
-              </Card.Section>
-
-              <Box mt="md">
-                <Badge
-                  color={library.is_active ? "green" : "red"}
-                  variant="filled"
-                  size="lg"
-                >
-                  {library.is_active ? "Faol" : "Faol emas"}{" "}
-                </Badge>
               </Box>
+            </Grid.Col>
 
-              <List spacing="xs" size="sm" mt="md" center>
-                <List.Item icon={<IconBook size={18} />}>
-                  Kitoblar soni: **{totalBooks || 0}**
-                </List.Item>
-                <List.Item icon={<IconPhone size={18} />}>
-                  **{phone}**
-                </List.Item>
-                <List.Item icon={<IconMapPin size={18} />}>
-                  {library.address}
-                </List.Item>
-                <List.Item
-                  icon={
-                    library.can_rent_books ? (
-                      <IconCheck size={18} color="teal" />
-                    ) : (
-                      <IconX size={18} color="red" />
-                    )
-                  }
-                >
-                  Kitob ijarasi mavjud emas:{" "}
-                </List.Item>
-              </List>
+            <Grid.Col span={{ base: 12, md: 7 }} p={{ base: "xl", md: "3rem" }}>
+              <Stack gap="xl">
+                <Box>
+                  <Title
+                    order={1}
+                    className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight"
+                  >
+                    {library?.name || "Kutubxona Nomi"}
+                  </Title>
+                  <Text size="md" c="gray" mt={4}>
+                    Rasmiy kutubxona haqidagi ma'lumotlar
+                  </Text>
+                </Box>
+                <Divider />
+                <Grid gutter="xl">
+                  {" "}
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Stack gap={2}>
+                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                        Manzil
+                      </Text>
+                      <Text fw={500} lineClamp={1}>
+                        {address}
+                      </Text>
+                    </Stack>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Stack gap={2}>
+                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                        Telefon Raqam
+                      </Text>
+                      <Text fw={500} lineClamp={1}>
+                        {phone}
+                      </Text>
+                    </Stack>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Stack gap={2}>
+                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                        Tashkil etilgan
+                      </Text>
+                      <Text fw={500} lineClamp={1}>
+                        {createdAt}
+                      </Text>
+                    </Stack>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Stack gap={2}>
+                      <Text
+                        size="xs"
+                        radius="sm"
+                        c="dimmed"
+                        tt="uppercase"
+                        fw={700}
+                      >
+                        Holat
+                      </Text>
+                      <Chip
+                        checked={isActive}
+                        color={isActive ? "green" : "red"}
+                        variant="filled"
+                        size="sm"
+                        radius="sm"
+                      >
+                        {isActive ? "Faol" : "Faol emas"}
+                      </Chip>
+                    </Stack>
+                  </Grid.Col>
+                </Grid>
+                <Divider />
+                <Card withBorder radius="md" bg="blue.0">
+                  <Group justify="space-between">
+                    <Group gap="xs">
+                      <BookOpen size={24} className="text-blue-600" />
+                      <Title order={4} className="text-blue-700">
+                        Jami Kitoblar Soni
+                      </Title>
+                    </Group>
+                    <Badge
+                      color="blue"
+                      radius="sm"
+                      size="xl"
+                      variant="filled"
+                      py="md"
+                    >
+                      {totalBooks} ta
+                    </Badge>
+                  </Group>
+                </Card>
+              </Stack>
+            </Grid.Col>
+          </Grid>
+        </Card>
 
-              <Button
-                component="a"
-                target="_blank"
-                fullWidth
-                mt="md"
-                variant="light"
-              >
-                Google mapda ko'rish
-              </Button>
-            </Card>
-          </Grid.Col>
+        <div className="mt-20">
+          <Title
+            order={2}
+            className="text-3xl font-bold text-center mb-12 text-gray-800"
+          >
+            📚 Mavjud Kitoblar ({books.length} ta)
+          </Title>
 
-          <Grid.Col span={{ base: 12, md: 8 }}>
-            <Title
-              order={2}
-              mb="lg"
-              style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+          {books.length === 0 ? (
+            <Card
+              withBorder
+              radius="sm"
+              p="xl"
+              mt="lg"
+              className="text-center bg-white shadow-sm"
             >
-              Kitoblar ({totalBooks || books.length})
-            </Title>
-            {renderBookList()}
-          </Grid.Col>
-        </Grid>
+              <Text size="lg" c="dimmed">
+                Bu kutubxonada hali kitoblar qo'shilmagan.
+              </Text>
+            </Card>
+          ) : (
+            <Grid gutter="xl">
+              {books.map((book) => (
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 4, lg: 3 }}
+                  key={book.id}
+                >
+                  <Card
+                    withBorder
+                    shadow="xs"
+                    p="lg"
+                    mt="lg"
+                    className="h-full hover:shadow-xs hover:shadow-indigo-50 transition-all duration-300 group cursor-pointer"
+                  >
+                    <Card.Section>
+                      <div className="bg-gray-100  w-full h-48 flex flex-col items-center justify-center p-4">
+                        <Package size={48} className="text-indigo-400" />
+                        <Text size="sm" c="dimmed" mt="xs">
+                          Kitob Rasmi
+                        </Text>
+                      </div>
+                    </Card.Section>
+
+                    <Stack mt="md" gap="xs">
+                      <Title
+                        order={4}
+                        className="line-clamp-2 font-bold text-gray-800 group-hover:text-indigo-600 transition-colors"
+                        title={book.name}
+                      >
+                        {book.name}
+                      </Title>
+
+                      <Divider variant="dashed" my={4} />
+
+                      <Group gap={4}>
+                        <Text size="xs" c="dimmed">
+                          Muallif:
+                        </Text>
+                        <Text size="sm" fw={500} className="line-clamp-1">
+                          {book.author}
+                        </Text>
+                      </Group>
+
+                      <Group gap={4}>
+                        <Text size="xs" c="dimmed">
+                          Nashriyot:
+                        </Text>
+                        <Text size="sm" fw={500} className="line-clamp-1">
+                          {book.publisher}
+                        </Text>
+                      </Group>
+
+                      <Group justify="space-between" mt="md">
+                        <Badge
+                          color="blue"
+                          variant="light"
+                          size="lg"
+                          radius="sm"
+                          leftSection={<BookOpen size={14} />}
+                        >
+                          {book.quantity_in_library} dona
+                        </Badge>
+                        <Badge
+                          color="green"
+                          size="md"
+                          radius="sm"
+                          variant="dot"
+                        >
+                          Mavjud
+                        </Badge>
+                      </Group>
+                    </Stack>
+                  </Card>
+                </Grid.Col>
+              ))}
+            </Grid>
+          )}
+        </div>
       </Container>
     </div>
   );
