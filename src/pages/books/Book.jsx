@@ -181,7 +181,7 @@ const Book = () => {
       }));
       setMultiBooksData(initialData);
 
-      setMultiStep(2); 
+      setMultiStep(2);
     } else {
       notifications.show({
         message: "Kitoblar soni 0 dan katta bo'lishi kerak.",
@@ -380,13 +380,13 @@ const Book = () => {
           {multiStep === 2 && (
             <form onSubmit={handleMultiBooksSubmit}>
               <Text size="sm" color="dimmed" mb="md">
-                Jami **{multiBookCount}** ta kitob uchun ma'lumot kiriting.
+                Jami {multiBooksData.length} ta kitob uchun ma'lumot kiriting.
               </Text>
 
               {multiBooksData.map((book, index) => (
                 <Paper key={index} shadow="xs" p="md" withBorder mb="lg">
                   <Title order={4} mb="sm">
-                    Kitob {index + 1} / {multiBookCount}
+                    Kitob {index + 1} / {multiBooksData.length}
                   </Title>
                   <TextInput
                     label="Kitob nomi"
