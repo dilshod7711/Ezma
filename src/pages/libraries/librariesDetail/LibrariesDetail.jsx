@@ -15,28 +15,7 @@ import {
   Box,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
-import {
-  MapPin,
-  Phone,
-  BookOpen,
-  Building2,
-  UserCheck,
-  Package,
-} from "lucide-react";
-
-const InfoItem = ({ Icon, title, value, color }) => (
-  <Group wrap="nowrap" gap="sm">
-    <Icon size={20} className={`text-${color}-600 shrink-0`} />
-    <Stack gap={2}>
-      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-        {title}
-      </Text>
-      <Text fw={500} lineClamp={1}>
-        {value}
-      </Text>
-    </Stack>
-  </Group>
-);
+import { BookOpen, Package } from "lucide-react";
 
 const LibrariesDetail = () => {
   const { id } = useParams();
