@@ -351,7 +351,7 @@ const Book = () => {
           onClose={handleCloseMulti}
           title={
             <Text size="lg" fw={600}>
-              📚 Bir nechta kitob qo‘shish ({multiStep} / 2)
+              📚 Bir nechta kitob qo‘shish 
             </Text>
           }
           centered
