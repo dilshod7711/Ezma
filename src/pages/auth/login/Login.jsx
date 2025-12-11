@@ -110,14 +110,11 @@ const Login = () => {
                   type="text"
                   placeholder="+998 __ ___ __ __"
                   onBlur={(e) => {
-                    // avtomatik tozalash va formatlash: +998901234567 -> +998 90 123 45 67 (misol)
                     const raw = phoneClean(e.target.value);
-                    // setValue bilan formni yangilash (barcha validatsiyalar ishlaydi)
                     setValue("phone", raw, {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
-                    // agar ref kerak bo'lsa, input.value ni ham yangilab qo'yish
                     if (numberRef.current) numberRef.current.value = raw;
                   }}
                   error={errors.phone?.message}
@@ -154,7 +151,7 @@ const Login = () => {
 
               <div className="flex items-center justify-center gap-2">
                 <p>Hisobingiz yo'qmi?</p>
-                <NavLink to="register" className="text-blue-700">
+                <NavLink to="/register" className="text-blue-700">
                   Ro'yxatdan o'ting
                 </NavLink>
               </div>

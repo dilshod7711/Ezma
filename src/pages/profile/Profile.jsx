@@ -13,6 +13,8 @@ import {
   Switch,
   Grid,
   Anchor,
+  Button,
+  Modal,
 } from "@mantine/core";
 import {
   IconPhone,
@@ -30,16 +32,16 @@ import {
 } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { useDisclosure } from "@mantine/hooks";
-import { Modal, Button } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../../api/api";
 import authStore from "../../store/authStore";
 import BookCard from "../../components/bookCard/BookCard";
-import { Link } from "react-router-dom";
+import { YMaps, Map, ZoomControl, Placemark } from "@pbe/react-yandex-maps";
 
 const Profile = () => {
   const { logout } = authStore();
   const [opened, { open, close }] = useDisclosure(false);
+
   const {
     data: profiles,
     isLoading,
@@ -48,11 +50,11 @@ const Profile = () => {
     queryKey: ["profile"],
     queryFn: () => API.get("/auth/profile/").then((res) => res.data),
   });
+
   const { data: myBooks } = useQuery({
     queryKey: ["myBooks"],
     queryFn: () => API.get("/libraries/library/books").then((res) => res.data),
   });
-  console.log(profiles);
 
   if (isLoading)
     return (
@@ -62,6 +64,7 @@ const Profile = () => {
         </Text>
       </Container>
     );
+
   if (isError)
     return (
       <Container className="mt-[100px]">
@@ -70,6 +73,7 @@ const Profile = () => {
         </Text>
       </Container>
     );
+
   if (!profiles)
     return (
       <Container className="mt-[100px]">
@@ -85,11 +89,11 @@ const Profile = () => {
 
   const openDeleteModal = () =>
     modals.openConfirmModal({
-      title: "Kitobni o'chirmoqchimisiz",
+      title: "Chiqishni tasdiqlaysizmi?",
       centered: true,
       labels: { confirm: "Ha", cancel: "Yo'q" },
       confirmProps: { color: "red" },
-      onCancel: () => console.log("Cancel"),
+      onCancel: () => {},
       onConfirm: () => logout(),
     });
 
@@ -159,11 +163,7 @@ const Profile = () => {
               stroke={1.5}
             />
           </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            size="lg"
-            aria-label="Profilni tahrirlash"
-          >
+          <ActionIcon variant="subtle" size="lg" aria-label="Chiqish">
             <IconLogout
               variant="default"
               onClick={handleLogOut}
@@ -196,7 +196,7 @@ const Profile = () => {
               Xarita
             </Tabs.Tab>
           </Tabs.List>
-          <Divider my="xs" />{" "}
+          <Divider my="xs" />
           <div className="p-4">
             <Tabs.Panel value="kitoblarim">
               <Grid columns={4}>
@@ -210,51 +210,79 @@ const Profile = () => {
 
             <Tabs.Panel value="tarmoqlarim">
               <Stack gap="sm">
-                <div className="grid grid-cols-8">
-                  <Group>
-                    <IconBrandInstagram size={20} color="#E4405F" />
-                    <Anchor
-                      href={profiles.social_media?.instagram}
-                      target="_blank"
-                      underline="hover"
-                    >
-                      Instagram
-                    </Anchor>
-                  </Group>
+                <Group>
+                  <IconBrandInstagram size={20} color="#E4405F" />
+                  <Anchor
+                    href={profiles.social_media?.instagram}
+                    target="_blank"
+                    underline="hover"
+                  >
+                    Instagram
+                  </Anchor>
+                </Group>
 
-                  <Group>
-                    <IconBrandFacebook size={20} color="#1877F2" />
-                    <Anchor
-                      href={profiles.social_media?.facebook}
-                      target="_blank"
-                      underline="hover"
-                    >
-                      Facebook
-                    </Anchor>
-                  </Group>
+                <Group>
+                  <IconBrandFacebook size={20} color="#1877F2" />
+                  <Anchor
+                    href={profiles.social_media?.facebook}
+                    target="_blank"
+                    underline="hover"
+                  >
+                    Facebook
+                  </Anchor>
+                </Group>
 
-                  <Group>
-                    <IconBrandTelegram size={20} color="#0088CC" />
-                    <Anchor
-                      href={profiles.social_media?.telegram}
-                      target="_blank"
-                      underline="hover"
-                    >
-                      Telegram
-                    </Anchor>
-                  </Group>
-                </div>
+                <Group>
+                  <IconBrandTelegram size={20} color="#0088CC" />
+                  <Anchor
+                    href={profiles.social_media?.telegram}
+                    target="_blank"
+                    underline="hover"
+                  >
+                    Telegram
+                  </Anchor>
+                </Group>
               </Stack>
             </Tabs.Panel>
 
             <Tabs.Panel value="xarita">
-              <Text size="sm" c="dimmed">
-                Xarita ma'lumotlari mavjud emas.
-              </Text>
+              {profiles.latitude && profiles.longitude ? (
+                <div className="w-full h-[400px]">
+                  <YMaps
+                    query={{ apikey: "3d763bcd-1d38-4d2c-bda0-41deb0997e82" }}
+                  >
+                    <Map
+                      defaultState={{
+                        center: [
+                          parseFloat(profiles.latitude),
+                          parseFloat(profiles.longitude),
+                        ],
+                        zoom: 12,
+                        controls: [],
+                      }}
+                      width="100%"
+                      height="400px"
+                    >
+                      <ZoomControl options={{ float: "right" }} />
+                      <Placemark
+                        geometry={[
+                          parseFloat(profiles.latitude),
+                          parseFloat(profiles.longitude),
+                        ]}
+                      />
+                    </Map>
+                  </YMaps>
+                </div>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  Xarita ma'lumotlari mavjud emas.
+                </Text>
+              )}
             </Tabs.Panel>
           </div>
         </Tabs>
       </Card>
+
       <Modal
         opened={opened}
         onClose={close}
@@ -271,13 +299,18 @@ const Profile = () => {
             required
             label="* Manzil"
             placeholder="Tashkent"
-            defaultValue="Tashkent"
+            defaultValue={profiles.address || ""}
             leftSection={<IconMapPin size={18} />}
           />
 
           <Switch
             label="Kitob ijarasi"
-            description="Kitob ijarasi mavjud emas"
+            description={
+              profiles.can_rent_books
+                ? "Kitob ijarasi mavjud"
+                : "Kitob ijarasi mavjud emas"
+            }
+            checked={profiles.can_rent_books}
           />
 
           <Text size="sm" fw={500} className="mt-2">
@@ -286,19 +319,17 @@ const Profile = () => {
 
           <TextInput
             placeholder="https://instagram.com/username"
-            defaultValue="https://instagram.com/scx"
+            defaultValue={profiles.social_media?.instagram || ""}
             leftSection={<IconBrandInstagram size={18} color="#E4405F" />}
           />
-
           <TextInput
             placeholder="https://facebook.com/page"
-            defaultValue="https://facebook.com/sac"
+            defaultValue={profiles.social_media?.facebook || ""}
             leftSection={<IconBrandFacebook size={18} color="#1877F2" />}
           />
-
           <TextInput
             placeholder="https://t.me/username"
-            defaultValue="https://t.me/aw"
+            defaultValue={profiles.social_media?.telegram || ""}
             leftSection={<IconBrandTelegram size={18} color="#0088CC" />}
           />
 

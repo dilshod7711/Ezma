@@ -12,3 +12,16 @@ API.interceptors.request.use((config) => {
   }
   return config;
 });
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      authStore.getState().logout();
+      localStorage.removeItem("access");
+      window.location.href = "/login";
+      s;
+    }
+    return Promise.reject(error);
+  }
+);

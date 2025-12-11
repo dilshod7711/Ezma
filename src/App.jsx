@@ -9,6 +9,7 @@ import Login from "./pages/auth/login/Login";
 import Profile from "./pages/profile/Profile";
 import PrivateRequest from "./components/privateRequest/PrivateRequest";
 import LibrariesDetail from "./pages/libraries/librariesDetail/LibrariesDetail";
+import Register from "./pages/auth/register/Register";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </>
   );
