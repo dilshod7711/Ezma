@@ -45,7 +45,6 @@ const Register = () => {
   const [checked, setChecked] = useState(false);
   const [coords, setCoords] = useState(null);
 
-  const MAP_API = import.meta.env.VITE_USER_MAP_API;
   
 
   const { mutate: registerM } = useMutation({
