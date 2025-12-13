@@ -45,8 +45,6 @@ const Register = () => {
   const [checked, setChecked] = useState(false);
   const [coords, setCoords] = useState(null);
 
-  
-
   const { mutate: registerM } = useMutation({
     mutationFn: (body) => API.post("/auth/register-library/", body),
   });
@@ -101,6 +99,35 @@ const Register = () => {
         notifications.show({ message: "Xatolik", color: "red" });
       },
     });
+  };
+
+  const handleGeoLocation = () => {
+    if (!navigator.geolocation) {
+      notifications.show({
+        message: "Geolocation qo'llab-quvvatlanmaydi",
+        color: "red",
+      });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setValue("latitude", pos.coords.latitude.toString());
+        setValue("longitude", pos.coords.longitude.toString());
+        setCoords([pos.coords.latitude, pos.coords.longitude]);
+      },
+      (err) => {
+        notifications.show({ message: "Joylashuv olinmadi", color: "red" });
+      }
+    );
+  };
+
+  const handleMapClick = (e) => {
+    const clickedCoords = e.get("coords");
+    if (clickedCoords && clickedCoords.length === 2) {
+      setCoords(clickedCoords);
+      setValue("latitude", clickedCoords[0].toString());
+      setValue("longitude", clickedCoords[1].toString());
+    }
   };
 
   return (
@@ -183,16 +210,7 @@ const Register = () => {
         />
 
         <div className="mt-[30px]">
-          <Button
-            onClick={() => {
-              navigator.geolocation.getCurrentPosition((pos) => {
-                setValue("latitude", pos.coords.latitude);
-                setValue("longitude", pos.coords.longitude);
-              });
-            }}
-          >
-            Hozirgi joylashuvni olish
-          </Button>
+          <Button onClick={handleGeoLocation}>Hozirgi joylashuvni olish</Button>
 
           <div className="w-full h-[400px] mt-[20px]">
             <YMaps query={{ apikey: "3d763bcd-1d38-4d2c-bda0-41deb0997e82" }}>
@@ -204,12 +222,7 @@ const Register = () => {
                 }}
                 width="100%"
                 height="400px"
-                onClick={(e) => {
-                  const clickedCoords = e.get("coords");
-                  setCoords(clickedCoords);
-                  setValue("latitude", clickedCoords[0]);
-                  setValue("longitude", clickedCoords[1]);
-                }}
+                onClick={handleMapClick}
               >
                 <ZoomControl options={{ float: "right" }} />
                 {coords && <Placemark geometry={coords} />}

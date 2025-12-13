@@ -5,11 +5,11 @@ import Book from "./pages/books/Book";
 import Libraries from "./pages/libraries/Libraries";
 import NotFound from "./pages/notFound/NotFound";
 import BookDetail from "./pages/bookDetail/BookDetail";
-import Login from "./pages/auth/login/Login";
 import Profile from "./pages/profile/Profile";
 import PrivateRequest from "./components/privateRequest/PrivateRequest";
 import LibrariesDetail from "./pages/libraries/librariesDetail/LibrariesDetail";
 import Register from "./pages/auth/register/Register";
+import Login from "./pages/auth/login/Login";
 
 const App = () => {
   return (
