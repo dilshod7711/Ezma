@@ -10,10 +10,12 @@ import "swiper/css/navigation";
 import { Autoplay } from "swiper/modules";
 import BookCard from "../../components/bookCard/BookCard";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const HEADER_HEIGHT = 100;
 
 const Home = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const backgroundImage =
     "https://ezma-client.vercel.app/assets/home-bg-aYS3sMx9.svg";
@@ -48,20 +50,20 @@ const Home = () => {
               className={`text-5xl font-extrabold mb-4 max-w-4xl tracking-tight text-gray-800 dark:text-gray-100`}
               style={{ color: PRIMARY_COLOR_HEX }}
             >
-              Kitoblar bir joyda — qidiruvni shu yerdan boshlang
+              {t("searchBoksHome")}
             </h1>
 
             <div className="flex w-full max-w-2xl mx-auto rounded-xl overflow-hidden shadow-lg">
               <input
                 type="text"
-                placeholder="Kitob nomi, muallif, janr yoki ISBN..."
+                placeholder={t("searchBoksHome")}
                 className="flex-grow p-5 text-lg border-none focus:ring-0 focus:border-0 placeholder-gray-500 rounded-l-xl outline-none dark:bg-gray-700 dark:text-white"
               />
               <button
                 className="px-8 text-xl font-bold text-gray-900 transition-colors duration-300 flex items-center justify-center hover:opacity-90 rounded-r-xl cursor-pointer"
                 style={{ backgroundColor: PRIMARY_COLOR_HEX }}
               >
-                <Users className="w-6 h-6 mr-3" /> Qidirish
+                <Users className="w-6 h-6 mr-3" /> {t("search")}
               </button>
             </div>
           </div>
@@ -78,7 +80,7 @@ const Home = () => {
           >
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 ">
               <BookOpenText className="inline w-7 h-7 mr-2 text-amber-500" />{" "}
-              Eng ko'p o'qilgan kitoblar
+              {t("mostBooks")}
             </h1>
             <div className="mt-4 w-44 h-1 bg-amber-500 mx-auto rounded-full" />
           </Flex>

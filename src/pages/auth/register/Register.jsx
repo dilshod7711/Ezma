@@ -16,24 +16,25 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
 import { YMaps, Map, ZoomControl, Placemark } from "@pbe/react-yandex-maps";
+import { useTranslation } from "react-i18next";
 
 const phoneClean = (v) =>
   v.replace(/\D/g, "").replace(/^998/, "").replace(/^0/, "");
 
 const schema = yup.object().shape({
-  name: yup.string().required("Ismni kiriting"),
+  name: yup.string().required("register.validation.nameRequired"),
   phone: yup
     .string()
-    .required("Telefon raqamni kiriting")
+    .required("register.validation.phoneRequired")
     .transform((val) => (val ? phoneClean(val) : ""))
-    .matches(/^\d{9}$/, "Telefon raqam formati: 901234567"),
+    .matches(/^\d{9}$/, "register.validation.phoneFormat"),
   password: yup
     .string()
-    .required("Parolni kiriting")
-    .min(6, "Parol kamida 6 belgidan iborat bo'lishi kerak"),
-  address: yup.string().required("Manzilni kiriting"),
-  latitude: yup.string().required("Kenglikni kiriting"),
-  longitude: yup.string().required("Uzunlikni kiriting"),
+    .required("register.validation.passwordRequired")
+    .min(6, "register.validation.passwordMin"),
+  address: yup.string().required("register.validation.addressRequired"),
+  latitude: yup.string().required("register.validation.latitudeRequired"),
+  longitude: yup.string().required("register.validation.longitudeRequired"),
   instagram: yup.string().nullable(),
   facebook: yup.string().nullable(),
   telegram: yup.string().nullable(),
@@ -41,9 +42,13 @@ const schema = yup.object().shape({
 });
 
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [checked, setChecked] = useState(false);
   const [coords, setCoords] = useState(null);
+
+  const MAP_API = import.meta.env.VITE_USER_MAP_API;
+  console.log(MAP_API);
 
   const { mutate: registerM } = useMutation({
     mutationFn: (body) => API.post("/auth/register-library/", body),
@@ -92,11 +97,11 @@ const Register = () => {
 
     registerM(body, {
       onSuccess: () => {
-        notifications.show({ message: "Muvoffaqiyatli" });
+        notifications.show({ message: t("register.success") });
         navigate("/login");
       },
       onError: () => {
-        notifications.show({ message: "Xatolik", color: "red" });
+        notifications.show({ message: t("register.error"), color: "red" });
       },
     });
   };
@@ -104,52 +109,48 @@ const Register = () => {
   return (
     <Container py="lg">
       <div className="flex flex-col gap-1 items-center justify-center">
-        <h1 className="text-[32px] text-[#00aeff]">
-          Kutubxonachi ro'yxatdan o'tish
-        </h1>
-        <p className="text-[14px] text-gray-600">
-          Kutubxona ma'lumotlarini to'ldiring
-        </p>
+        <h1 className="text-[32px] text-[#00aeff]">{t("register.title")}</h1>
+        <p className="text-[14px] text-gray-600">{t("register.subtitle")}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex gap="lg" mt="lg">
           <div className="w-[50%] flex flex-col gap-4">
             <TextInput
-              label="Ism"
-              placeholder="Ism"
+              label={t("register.nameLabel")}
+              placeholder={t("register.namePlaceholder")}
               {...formRegister("name")}
-              error={errors.name?.message}
+              error={errors.name && t(errors.name.message)}
             />
 
             <TextInput
-              label="Telefon raqam"
-              placeholder="90 447 1907"
+              label={t("register.phoneLabel")}
+              placeholder={t("register.phonePlaceholder")}
               {...formRegister("phone")}
               onBlur={(e) => setValue("phone", phoneClean(e.target.value))}
-              error={errors.phone?.message}
+              error={errors.phone && t(errors.phone.message)}
             />
 
             <PasswordInput
-              label="Parol"
+              label={t("register.passwordLabel")}
               {...formRegister("password")}
-              error={errors.password?.message}
+              error={errors.password && t(errors.password.message)}
             />
           </div>
           <div className="w-[50%] flex flex-col gap-4">
             <TextInput
-              label="Instagram"
-              placeholder="username"
+              label={t("register.instagramLabel")}
+              placeholder={t("register.instagramPlaceholder")}
               {...formRegister("instagram")}
             />
             <TextInput
-              label="Facebook"
-              placeholder="username"
+              label={t("register.facebookLabel")}
+              placeholder={t("register.facebookPlaceholder")}
               {...formRegister("facebook")}
             />
             <TextInput
-              label="Telegram"
-              placeholder="username"
+              label={t("register.telegramLabel")}
+              placeholder={t("register.telegramPlaceholder")}
               {...formRegister("telegram")}
             />
 
@@ -161,7 +162,7 @@ const Register = () => {
               }}
               color="teal"
               size="md"
-              label="Kitob ijarasi"
+              label={t("register.canRentBooks")}
               thumbIcon={
                 checked ? (
                   <IconCheck size={12} stroke={3} />
@@ -174,9 +175,9 @@ const Register = () => {
         </Flex>
 
         <TextInput
-          label="Manzil"
+          label={t("register.addressLabel")}
           {...formRegister("address")}
-          error={errors.address?.message}
+          error={errors.address && t(errors.address.message)}
           mt="md"
         />
 
@@ -189,11 +190,11 @@ const Register = () => {
               });
             }}
           >
-            Hozirgi joylashuvni olish
+            {t("register.getCurrentLocation")}
           </Button>
 
           <div className="w-full h-[400px] mt-[20px]">
-            <YMaps query={{ apikey: "3d763bcd-1d38-4d2c-bda0-41deb0997e82" }}>
+            <YMaps query={{ apikey: MAP_API }}>
               <Map
                 defaultState={{
                   center: [41.2995, 69.2401],
@@ -218,24 +219,24 @@ const Register = () => {
           <div className="flex gap-2 mt-[30px] w-full">
             <TextInput
               className="w-[50%]"
-              label="Kenglik"
+              label={t("register.latitudeLabel")}
               {...formRegister("latitude")}
-              error={errors.latitude?.message}
+              error={errors.latitude && t(errors.latitude.message)}
             />
             <TextInput
               className="w-[50%]"
-              label="Uzunlik"
+              label={t("register.longitudeLabel")}
               {...formRegister("longitude")}
-              error={errors.longitude?.message}
+              error={errors.longitude && t(errors.longitude.message)}
             />
           </div>
 
           <div className="flex gap-2 mt-[20px] items-end justify-end">
             <Button onClick={() => navigate("/login")} type="button">
-              Ortga
+              {t("register.back")}
             </Button>
             <Button type="submit" loading={isSubmitting}>
-              Ro'yxatdan o'tish
+              {t("register.submit")}
             </Button>
           </div>
         </div>

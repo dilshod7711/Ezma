@@ -37,8 +37,10 @@ import { useRef, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { queryClient } from "../../main";
 import authStore from "../../store/authStore";
+import { useTranslation } from "react-i18next";
 
 const Book = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const { isAuth } = authStore();
 
@@ -255,17 +257,17 @@ const Book = () => {
         <Paper radius="lg" p="xl">
           <div className="mb-10 text-center">
             <Title order={1} style={{ fontSize: "2.5rem" }}>
-              📚 Kitoblar Katalogi
+              {t("catalog")}
             </Title>
             <Text color="dimmed" size="lg">
-              Kutubxonamizdagi barcha kitoblarni qidiring.
+              {t("allBooks")}
             </Text>
           </div>
 
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Kitob nomini qidirish..."
+            placeholder={t("")}
             icon={<IconSearch size={20} />}
             size="xl"
             variant="filled"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Text, Anchor, Group } from "@mantine/core";
 import {
   IconPhone,
@@ -8,19 +8,16 @@ import {
   IconBrandInstagram,
   IconBrandYoutube,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
-// --- Ma'lumotlar strukturalari (Optimalizatsiya 1) ---
-
-// Tezkor Havolalar
 const quickLinks = [
-  { label: "Bosh sahifa", href: "#" },
-  { label: "Kutubxonalar", href: "#" },
-  { label: "Kitoblar", href: "#" },
-  { label: "Tadbirlar", href: "#" },
-  { label: "Biz haqimizda", href: "#" },
+  { key: "home", href: "#" },
+  { key: "libraries", href: "#" },
+  { key: "books", href: "#" },
+  { key: "events", href: "#" },
+  { key: "about", href: "#" },
 ];
 
-// Bog'lanish Ma'lumotlari
 const contactInfo = [
   {
     icon: IconPhone,
@@ -36,7 +33,6 @@ const contactInfo = [
   },
 ];
 
-// Ijtimoiy Tarmoqlar
 const socialMedia = [
   { icon: IconBrandFacebook, href: "#", label: "Facebook" },
   { icon: IconBrandInstagram, href: "#", label: "Instagram" },
@@ -44,18 +40,14 @@ const socialMedia = [
 ];
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-gray-50 pt-16 pb-6 border-t border-gray-200">
       <Container size="xl">
         <div className="grid grid-cols-2 gap-y-10 md:grid-cols-4 md:gap-12">
-          {/* --- 1. Logo va Tushuntirish --- */}
           <div className="col-span-2 md:col-span-1">
-            {" "}
-            {/* Kichik ekranda 2 ustunni egallaydi */}
             <Group spacing="xs" className="mb-4">
-              {" "}
-              {/* Mantine Group ishlatildi (Optimalizatsiya 2) */}
-              {/* Logo SVG */}
               <svg
                 className="w-8 h-8 text-gray-800"
                 xmlns="http://www.w3.org/2000/svg"
@@ -72,34 +64,31 @@ const Footer = () => {
               <Text className="text-2xl font-semibold text-gray-900">Ezma</Text>
             </Group>
             <Text className="text-sm text-gray-600 max-w-xs">
-              O'zbekistonning eng yirik kutubxona tarmog'i. Biz bilan kitob
-              o'qishni boshlang!
+              {t("brandDescription")}
             </Text>
           </div>
 
-          {/* --- 2. Tezkor havolalar (Dinamik Render) --- */}
           <div>
             <Text className="text-lg font-semibold mb-4 text-gray-800">
-              Tezkor havolalar
+              {t("quickLinks")}
             </Text>
             <ul className="space-y-3 text-sm">
               {quickLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.key}>
                   <Anchor
                     href={link.href}
                     className="text-gray-600 hover:text-blue-600 transition duration-150"
                   >
-                    {link.label}
+                    {t(link.key)}
                   </Anchor>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* --- 3. Bog'lanish (Dinamik Render) --- */}
           <div>
             <Text className="text-lg font-semibold mb-4 text-gray-800">
-              Bog'lanish
+              {t("contact")}
             </Text>
             <ul className="space-y-4 text-sm">
               {contactInfo.map((item) => {
@@ -119,23 +108,19 @@ const Footer = () => {
                   </li>
                 );
               })}
-              {/* Joylashuv alohida, chunki bu Anchor emas */}
               <li className="flex items-start">
                 <IconMapPin
                   size={18}
                   className="text-blue-500 mr-2 mt-0.5 flex-shrink-0"
                 />
-                <Text className="text-gray-600">
-                  Toshkent shahri, Yunusobod tumani
-                </Text>
+                <Text className="text-gray-600">{t("address")}</Text>
               </li>
             </ul>
           </div>
 
-          {/* --- 4. Ijtimoiy tarmoqlar (Dinamik Render) --- */}
           <div>
             <Text className="text-lg font-semibold mb-4 text-gray-800">
-              Ijtimoiy tarmoqlar
+              {t("social")}
             </Text>
             <div className="flex space-x-4">
               {socialMedia.map((social) => {
@@ -145,7 +130,7 @@ const Footer = () => {
                     key={social.label}
                     href={social.href}
                     target="_blank"
-                    rel="noopener noreferrer" // Optimalizatsiya: xavfsizlik uchun qo'shildi
+                    rel="noopener noreferrer"
                     className="text-gray-600 hover:text-blue-600 transition duration-150"
                   >
                     <Icon size={24} />
@@ -156,20 +141,17 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* --- Pastki Qism (Copyright va Siyosatlar) --- */}
         <div className="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
           <Text className="mb-2 sm:mb-0">
-            © {new Date().getFullYear()} EZMA. Barcha huquqlar himoyalangan
+            © {new Date().getFullYear()} EZMA. {t("rights")}
           </Text>
 
           <Group spacing="md">
-            {" "}
-            {/* Optimalizatsiya 2: Mantine Group ishlatildi */}
             <Anchor href="#" className="hover:text-gray-800">
-              Maxfiylik siyosati
+              {t("privacy")}
             </Anchor>
             <Anchor href="#" className="hover:text-gray-800">
-              Foydalanish shartlari
+              {t("terms")}
             </Anchor>
           </Group>
         </div>

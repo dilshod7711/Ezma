@@ -1,3 +1,5 @@
+// React va Mantine komponentlari
+import React from "react";
 import {
   Container,
   Card,
@@ -16,6 +18,12 @@ import {
   Button,
   Modal,
 } from "@mantine/core";
+
+// Mantine modals va hooks
+import { modals } from "@mantine/modals";
+import { useDisclosure } from "@mantine/hooks";
+
+// Ikonalar (Tabler Icons)
 import {
   IconPhone,
   IconMapPin,
@@ -30,18 +38,29 @@ import {
   IconBrandInstagram,
   IconLogout,
 } from "@tabler/icons-react";
-import { modals } from "@mantine/modals";
-import { useDisclosure } from "@mantine/hooks";
+
+// React Query
 import { useQuery } from "@tanstack/react-query";
+
+// API va store
 import { API } from "../../api/api";
 import authStore from "../../store/authStore";
+
+// Custom komponent
 import BookCard from "../../components/bookCard/BookCard";
+
+// Yandex Maps
 import { YMaps, Map, ZoomControl, Placemark } from "@pbe/react-yandex-maps";
 
+// i18n tarjima
+import { useTranslation } from "react-i18next";
+
 const Profile = () => {
+  const { t } = useTranslation();
   const { logout } = authStore();
   const [opened, { open, close }] = useDisclosure(false);
 
+  // Profil ma'lumotlarini olish
   const {
     data: profiles,
     isLoading,
@@ -51,6 +70,7 @@ const Profile = () => {
     queryFn: () => API.get("/auth/profile/").then((res) => res.data),
   });
 
+  // Foydalanuvchining kitoblarini olish
   const { data: myBooks } = useQuery({
     queryKey: ["myBooks"],
     queryFn: () => API.get("/libraries/library/books").then((res) => res.data),
@@ -60,7 +80,7 @@ const Profile = () => {
     return (
       <Container className="mt-[100px]">
         <Text size="xl" c="blue">
-          Profil yuklanmoqda...
+          {t("profile.loading")}
         </Text>
       </Container>
     );
@@ -69,7 +89,7 @@ const Profile = () => {
     return (
       <Container className="mt-[100px]">
         <Text size="xl" c="red">
-          Xatolik yuz berdi.
+          {t("profile.error")}
         </Text>
       </Container>
     );
@@ -77,37 +97,37 @@ const Profile = () => {
   if (!profiles)
     return (
       <Container className="mt-[100px]">
-        <Text size="xl">Profil ma'lumoti topilmadi.</Text>
+        <Text size="xl">{t("profile.notFound")}</Text>
       </Container>
     );
 
   const user = profiles.user || {};
 
-  function handleLogOut() {
-    openDeleteModal();
-  }
-
+  // Chiqish modalini ochish
   const openDeleteModal = () =>
     modals.openConfirmModal({
-      title: "Chiqishni tasdiqlaysizmi?",
+      title: t("profile.confirmLogout"),
       centered: true,
-      labels: { confirm: "Ha", cancel: "Yo'q" },
+      labels: { confirm: t("profile.yes"), cancel: t("profile.no") },
       confirmProps: { color: "red" },
-      onCancel: () => {},
       onConfirm: () => logout(),
     });
+
+  const handleLogOut = () => openDeleteModal();
 
   const MainProfileBlock = () => (
     <Card padding="xl" radius="md" withBorder className="mb-6">
       <Group justify="space-between" align="flex-start" wrap="nowrap">
         <Group wrap="nowrap" gap="md">
           <Avatar size={90} radius="md" src={user.avatar_url}>
-            {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+            {user.name
+              ? user.name.charAt(0).toUpperCase()
+              : t("profile.unknownName")}
           </Avatar>
 
           <Stack gap={4}>
             <Text size="xl" fw={700}>
-              {user.name || "Noma'lum Ism"}
+              {user.name || t("profile.unknownName")}
             </Text>
 
             <Group gap={6}>
@@ -116,7 +136,7 @@ const Profile = () => {
                 style={{ color: "var(--mantine-color-dimmed)" }}
               />
               <Text size="sm" c="dimmed" fw={500}>
-                {user.phone || "Kiritilmagan"}
+                {user.phone || t("profile.notProvided")}
               </Text>
             </Group>
 
@@ -134,8 +154,8 @@ const Profile = () => {
               className="mt-1"
             >
               {profiles.can_rent_books
-                ? "Kitob berishga ruxsat"
-                : "Kitob berish cheklangan"}
+                ? t("profile.canRentBooks")
+                : t("profile.cannotRentBooks")}
             </Badge>
 
             <Group gap={6} className="mt-1">
@@ -144,7 +164,7 @@ const Profile = () => {
                 style={{ color: "var(--mantine-color-dimmed)" }}
               />
               <Text size="sm" c="dimmed">
-                {profiles.address || "Manzil kiritilmagan"}
+                {profiles.address || t("profile.notProvided")}
               </Text>
             </Group>
           </Stack>
@@ -154,18 +174,16 @@ const Profile = () => {
           <ActionIcon
             variant="subtle"
             size="lg"
-            aria-label="Profilni tahrirlash"
+            aria-label={t("profile.editProfile")}
           >
             <IconPencil
-              variant="default"
               onClick={open}
               style={{ width: 20, height: 20 }}
               stroke={1.5}
             />
           </ActionIcon>
-          <ActionIcon variant="subtle" size="lg" aria-label="Chiqish">
+          <ActionIcon variant="subtle" size="lg" aria-label="Logout">
             <IconLogout
-              variant="default"
               onClick={handleLogOut}
               style={{ width: 20, height: 20 }}
               stroke={1.5}
@@ -184,16 +202,16 @@ const Profile = () => {
         <Tabs defaultValue="kitoblarim" keepMounted={false}>
           <Tabs.List>
             <Tabs.Tab value="kitoblarim" leftSection={<IconBook size={18} />}>
-              Kitoblarim
+              {t("profile.myBooks")}
             </Tabs.Tab>
             <Tabs.Tab
               value="tarmoqlarim"
               leftSection={<IconShare2 size={18} />}
             >
-              Tarmoqlarim
+              {t("profile.myNetworks")}
             </Tabs.Tab>
             <Tabs.Tab value="xarita" leftSection={<IconMap size={18} />}>
-              Xarita
+              {t("profile.map")}
             </Tabs.Tab>
           </Tabs.List>
           <Divider my="xs" />
@@ -207,7 +225,6 @@ const Profile = () => {
                 ))}
               </Grid>
             </Tabs.Panel>
-
             <Tabs.Panel value="tarmoqlarim">
               <Stack gap="sm">
                 <Group>
@@ -220,7 +237,6 @@ const Profile = () => {
                     Instagram
                   </Anchor>
                 </Group>
-
                 <Group>
                   <IconBrandFacebook size={20} color="#1877F2" />
                   <Anchor
@@ -231,7 +247,6 @@ const Profile = () => {
                     Facebook
                   </Anchor>
                 </Group>
-
                 <Group>
                   <IconBrandTelegram size={20} color="#0088CC" />
                   <Anchor
@@ -244,13 +259,10 @@ const Profile = () => {
                 </Group>
               </Stack>
             </Tabs.Panel>
-
             <Tabs.Panel value="xarita">
               {profiles.latitude && profiles.longitude ? (
                 <div className="w-full h-[400px]">
-                  <YMaps
-                    query={{ apikey: "3d763bcd-1d38-4d2c-bda0-41deb0997e82" }}
-                  >
+                  <YMaps query={{ apikey: "YOUR_API_KEY" }}>
                     <Map
                       defaultState={{
                         center: [
@@ -275,7 +287,7 @@ const Profile = () => {
                 </div>
               ) : (
                 <Text size="sm" c="dimmed">
-                  Xarita ma'lumotlari mavjud emas.
+                  {t("profile.notProvided")}
                 </Text>
               )}
             </Tabs.Panel>
@@ -288,7 +300,7 @@ const Profile = () => {
         onClose={close}
         title={
           <Text size="lg" fw={600}>
-            Profilni tahrirlash
+            {t("profile.editProfile")}
           </Text>
         }
         centered
@@ -297,26 +309,23 @@ const Profile = () => {
         <Stack gap="lg">
           <TextInput
             required
-            label="* Manzil"
+            label={t("profile.address")}
             placeholder="Tashkent"
             defaultValue={profiles.address || ""}
             leftSection={<IconMapPin size={18} />}
           />
-
           <Switch
-            label="Kitob ijarasi"
+            label={t("profile.rentBooks")}
             description={
               profiles.can_rent_books
-                ? "Kitob ijarasi mavjud"
-                : "Kitob ijarasi mavjud emas"
+                ? t("profile.rentAvailable")
+                : t("profile.rentNotAvailable")
             }
             checked={profiles.can_rent_books}
           />
-
           <Text size="sm" fw={500} className="mt-2">
             Ijtimoiy tarmoqlar
           </Text>
-
           <TextInput
             placeholder="https://instagram.com/username"
             defaultValue={profiles.social_media?.instagram || ""}
@@ -332,17 +341,16 @@ const Profile = () => {
             defaultValue={profiles.social_media?.telegram || ""}
             leftSection={<IconBrandTelegram size={18} color="#0088CC" />}
           />
-
           <Button variant="filled" color="blue" fullWidth>
-            Xaritada joylashuvni tanlash
+            {t("profile.chooseLocation")}
           </Button>
         </Stack>
 
         <Group justify="flex-end" className="mt-8">
           <Button variant="default" onClick={close}>
-            Bekor qilish
+            {t("profile.cancel")}
           </Button>
-          <Button color="blue">Saqlash</Button>
+          <Button color="blue">{t("profile.save")}</Button>
         </Group>
       </Modal>
     </Container>

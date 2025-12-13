@@ -1,12 +1,16 @@
-import { Button, Container, Flex } from "@mantine/core";
+import { Button, Container, Flex, Select } from "@mantine/core";
 import { NavLink, useNavigate } from "react-router-dom";
 import authStore from "../../store/authStore";
-import { CgProfile } from "react-icons/cg";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "i18next";
+import { useEffect } from "react";
 
 export const HEADER_HEIGHT = 80;
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const { isAuth } = authStore();
+  const { language, setLanguage } = authStore();
 
   const navigate = useNavigate();
   function handleNavigate() {
@@ -21,6 +25,16 @@ const Header = () => {
   function loginPage() {
     navigate("/login");
   }
+
+  const handleChangeLanguage = (e) => {
+    const lang = e.target.value;
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
+  };
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language]);
   return (
     <header
       className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 shadow-md"
@@ -56,7 +70,7 @@ const Header = () => {
                   }`
                 }
               >
-                Bosh sahifa
+                {t("home")}
               </NavLink>
               <NavLink
                 to="/libraries"
@@ -68,7 +82,7 @@ const Header = () => {
                   }`
                 }
               >
-                Kutubxonalar
+                {t("libraries")}
               </NavLink>
               <NavLink
                 to="/books"
@@ -80,7 +94,7 @@ const Header = () => {
                   }`
                 }
               >
-                Kitoblar
+                {t("books")}
               </NavLink>
             </Flex>
           </Flex>
@@ -91,6 +105,15 @@ const Header = () => {
             className="animate-slideInRight"
             style={{ animationDelay: "0.2s" }}
           >
+            <select
+              value={language}
+              onChange={handleChangeLanguage}
+              className="w-[80px] border border-gray-300 px-2 py-1 rounded-[4px]"
+            >
+              <option value="uz">UZB</option>
+              <option value="ru">RUS</option>
+              <option value="en">ENG</option>
+            </select>
             {!isAuth && (
               <Button
                 onClick={loginPage}
@@ -98,7 +121,7 @@ const Header = () => {
                 color="indigo"
                 className="bg-[#00aeff] hover:bg-[#0095d6] text-white font-semibold"
               >
-                Kutubxonachi bo'lish
+                {t("kutubxonachi")}
               </Button>
             )}
             {isAuth && (
