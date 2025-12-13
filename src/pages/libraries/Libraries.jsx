@@ -29,14 +29,13 @@ import {
   SortDesc,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 const BOOKS_SHELF_IMAGE =
   "https://w0.peakpx.com/wallpaper/960/362/HD-wallpaper-library-background-beautiful-library-book.jpg";
 
 const LibraryCard = ({ item, navigate }) => {
   const isActive = item.is_active;
-  const { t } = useTranslation();
+
   return (
     <Paper
       key={item.id}
@@ -121,7 +120,7 @@ const LibraryCard = ({ item, navigate }) => {
             navigate(`/libDetail/${item.id}`);
           }}
         >
-          {t("batafsil")}
+          Batafsil ko'rish
         </Button>
       </div>
     </Paper>
@@ -240,7 +239,6 @@ const LibraryListItem = ({ item, navigate }) => {
 };
 
 const Libraries = () => {
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
@@ -360,10 +358,10 @@ const Libraries = () => {
             order={1}
             className="text-5xl font-black text-slate-800 tracking-tight"
           >
-            {t("portal")}
+            Markaziy Kutubxonalar Portali 🏛️
           </Title>
           <Text size="lg" c="gray.6" mt="xs" className="font-light">
-            {t("manzilKitob")}
+            O'zbekiston bo'ylab eng yirik va faol kutubxona manzillari.
           </Text>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -378,7 +376,7 @@ const Libraries = () => {
               <Group gap="xs" mb="md" className="border-b border-gray-100 pb-2">
                 <Filter className="w-5 h-5 text-blue-800" />
                 <Title order={4} className="text-blue-900 font-extrabold">
-                  {t("filterBooks")}
+                  Saralash Mantiqi
                 </Title>
               </Group>
 
@@ -389,7 +387,7 @@ const Libraries = () => {
                   c="slate.7"
                   className="mt-2 uppercase tracking-wider border-b pb-1"
                 >
-                  {t("nomiF")}
+                  Nomi bo'yicha saralash
                 </Text>
 
                 <Group gap="xs">
@@ -412,7 +410,7 @@ const Libraries = () => {
                   c="slate.7"
                   className="uppercase tracking-wider mt-3 border-b pb-1"
                 >
-                  {t("kitobSoni")}
+                  Kitoblar soni bo'yicha
                 </Text>
                 <Group gap="xs">
                   <Button
@@ -509,9 +507,8 @@ const Libraries = () => {
                 p="sm"
                 className="border border-gray-300 p-8 rounded-sm bg-white shadow-xs text-gray-700 "
               >
-                Afsuski, <span className="text-red-600">"{search}"</span>{" "}
-                so'rovi bo'yicha hech qanday kutubxona topilmadi. Qidiruvni
-                qayta urinib ko'ring.
+                Afsuski, <span className="text-red-600">"{search}"</span> so'rovi bo'yicha hech qanday
+                kutubxona topilmadi. Qidiruvni qayta urinib ko'ring.
               </Text>
             )}
           </div>

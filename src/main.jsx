@@ -3,7 +3,6 @@ import "./index.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import App from "./App.jsx";
-import "./i18n.js";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { BrowserRouter } from "react-router-dom";
 import { Notifications } from "@mantine/notifications";

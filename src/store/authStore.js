@@ -8,15 +8,16 @@ const authStore = create(
       access: null,
       isAuth: false,
 
-      language: "uz",
-      setLanguage: (lang) => set({ language: lang }),
-
       login: (user, access) =>
         set({
           user,
           access,
           isAuth: true,
         }),
+      // register: (userR) =>
+      //   set({
+      //     userR,
+      //   }),
 
       logout: () =>
         set({
