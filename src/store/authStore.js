@@ -14,11 +14,7 @@ const authStore = create(
           access,
           isAuth: true,
         }),
-      // register: (userR) =>
-      //   set({
-      //     userR,
-      //   }),
-
+   
       logout: () =>
         set({
           user: null,
